@@ -1263,11 +1263,23 @@ class ProductController extends Controller
             $product_types = request()->get('product_types', []);
 
             $search_fields = request()->get('search_fields', ['name', 'sku']);
+
+            // Automatically include sub_sku and product_keywords if sku is in search
             if (in_array('sku', $search_fields)) {
                 $search_fields[] = 'sub_sku';
+                $search_fields[] = 'product_keywords';
             }
 
-            $result = $this->productUtil->filterProduct($business_id, $search_term, $location_id, $not_for_selling, $price_group_id, $product_types, $search_fields, $check_qty);
+            $result = $this->productUtil->filterProduct(
+                $business_id, 
+                $search_term, 
+                $location_id, 
+                $not_for_selling, 
+                $price_group_id, 
+                $product_types, 
+                $search_fields, 
+                $check_qty
+            );
 
             return json_encode($result);
         }
