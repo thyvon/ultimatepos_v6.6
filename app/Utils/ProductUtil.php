@@ -36,7 +36,17 @@ class ProductUtil extends Util
      * @param $combo_variations = []
      * @return bool
      */
-    public function createSingleProductVariation($product, $sku, $purchase_price, $dpp_inc_tax, $profit_percent, $selling_price, $selling_price_inc_tax, $combo_variations = [])
+    public function createSingleProductVariation(
+        $product, 
+        $sku, 
+        $purchase_price, 
+        $dpp_inc_tax, 
+        $profit_percent, 
+        $selling_price, 
+        $selling_price_inc_tax, 
+        $combo_variations = [], 
+        $product_keywords = null // ⭐ NEW
+    )
     {
         if (! is_object($product)) {
             $product = Product::find($product);
@@ -60,6 +70,7 @@ class ProductUtil extends Util
             'default_sell_price' => $this->num_uf($selling_price),
             'sell_price_inc_tax' => $this->num_uf($selling_price_inc_tax),
             'combo_variations' => $combo_variations,
+            'product_keywords' => $product_keywords, // ⭐ NEW
         ];
         $variation = $product_variation->variations()->create($variation_data);
 
@@ -75,14 +86,11 @@ class ProductUtil extends Util
      * @param $input_variations
      * @return bool
      */
-    public function createVariableProductVariations($product, $input_variations, $sku_type, $business_id = null, )
+    public function createVariableProductVariations($product, $input_variations, $sku_type, $business_id = null)
     {
         if (! is_object($product)) {
             $product = Product::find($product);
         }
-
-
-
 
         //create product variations
         foreach ($input_variations as $key => $value) {
@@ -121,7 +129,6 @@ class ProductUtil extends Util
             //create variations
             if (! empty($value['variations'])) {
                 $variation_data = [];
-
                 $c = Variation::withTrashed()
                         ->where('product_id', $product->id)
                         ->count() + 1;
@@ -132,7 +139,10 @@ class ProductUtil extends Util
                         continue;
                     }
 
-                    $sub_sku = empty($v['sub_sku']) ? $this->generateSubSku($product->sku, $c, $product->barcode_type, $v['value'], $sku_type) : $v['sub_sku'];
+                    $sub_sku = empty($v['sub_sku']) 
+                        ? $this->generateSubSku($product->sku, $c, $product->barcode_type, $v['value'], $sku_type)
+                        : $v['sub_sku'];
+
                     $variation_value_id = ! empty($v['variation_value_id']) ? $v['variation_value_id'] : null;
                     $variation_value_name = ! empty($v['value']) ? $v['value'] : null;
 
@@ -170,10 +180,12 @@ class ProductUtil extends Util
                         'profit_percent' => $this->num_uf($v['profit_percent']),
                         'default_sell_price' => $this->num_uf($v['default_sell_price']),
                         'sell_price_inc_tax' => $this->num_uf($v['sell_price_inc_tax']),
+                        'product_keywords' => $v['product_keywords'] ?? null,   // ⭐ NEW
                     ];
                     $c++;
                     $images[] = 'variation_images_'.$key.'_'.$k;
                 }
+
                 $variations = $product_variation->variations()->createMany($variation_data);
 
                 $i = 0;
@@ -210,6 +222,7 @@ class ProductUtil extends Util
             //Update existing variations
             if (! empty($value['variations_edit'])) {
                 foreach ($value['variations_edit'] as $k => $v) {
+
                     $data = [
                         'name' => $v['value'],
                         'default_purchase_price' => $this->num_uf($v['default_purchase_price']),
@@ -217,10 +230,13 @@ class ProductUtil extends Util
                         'profit_percent' => $this->num_uf($v['profit_percent']),
                         'default_sell_price' => $this->num_uf($v['default_sell_price']),
                         'sell_price_inc_tax' => $this->num_uf($v['sell_price_inc_tax']),
+                        'product_keywords' => $v['product_keywords'] ?? null,   // ⭐ NEW
                     ];
+
                     if (! empty($v['sub_sku'])) {
                         $data['sub_sku'] = $v['sub_sku'];
                     }
+
                     $variation = Variation::where('id', $k)
                             ->where('product_variation_id', $key)
                             ->first();
@@ -240,8 +256,12 @@ class ProductUtil extends Util
                                 ->where('product_id', $product->id)
                                 ->count() + 1;
                 $media = [];
+
                 foreach ($value['variations'] as $k => $v) {
-                    $sub_sku = empty($v['sub_sku']) ? $this->generateSubSku($product->sku, $c, $product->barcode_type, $v['value'] , $sku_type) : $v['sub_sku'];
+
+                    $sub_sku = empty($v['sub_sku']) 
+                        ? $this->generateSubSku($product->sku, $c, $product->barcode_type, $v['value'], $sku_type)
+                        : $v['sub_sku'];
 
                     $variation_value_name = ! empty($v['value']) ? $v['value'] : null;
                     $variation_value_id = null;
@@ -250,6 +270,7 @@ class ProductUtil extends Util
                         $variation_value = VariationValueTemplate::where('variation_template_id', $product_variation->variation_template_id)
                                 ->whereRaw('LOWER(name)="'.$v['value'].'"')
                                 ->first();
+
                         if (empty($variation_value)) {
                             $variation_value = VariationValueTemplate::create([
                                 'name' => $v['value'],
@@ -270,10 +291,13 @@ class ProductUtil extends Util
                         'profit_percent' => $this->num_uf($v['profit_percent']),
                         'default_sell_price' => $this->num_uf($v['default_sell_price']),
                         'sell_price_inc_tax' => $this->num_uf($v['sell_price_inc_tax']),
+                        'product_keywords' => $v['product_keywords'] ?? null,   // ⭐ NEW
                     ];
+
                     $c++;
                     $media[] = 'variation_images_'.$key.'_'.$k;
                 }
+
                 $new_variations = $product_variation->variations()->createMany($variation_data);
 
                 $i = 0;
@@ -291,39 +315,39 @@ class ProductUtil extends Util
                 ->pluck('id');
 
         foreach ($removed_variations as $removed_variation_id) {
-            //Check if purchase or sell exist for the deletable variation
+
+            //Check purchases
             $count_purchase = PurchaseLine::join(
                 'transactions as T',
                 'purchase_lines.transaction_id',
                 '=',
                 'T.id'
-                )
-                  ->where('T.type', 'purchase')
-                  ->where('T.status', 'received')
-                  ->where('T.business_id', $product->business_id)
-                  ->where('purchase_lines.product_id', $product->id)
-                  ->where('purchase_lines.variation_id', $removed_variation_id)
-                  ->count();
+            )
+            ->where('T.type', 'purchase')
+            ->where('T.status', 'received')
+            ->where('T.business_id', $product->business_id)
+            ->where('purchase_lines.product_id', $product->id)
+            ->where('purchase_lines.variation_id', $removed_variation_id)
+            ->count();
 
+            //Check sells
             $count_sell = TransactionSellLine::join(
                 'transactions as T',
                 'transaction_sell_lines.transaction_id',
                 '=',
                 'T.id'
-                )
-                  ->where('T.type', 'sell')
-                  ->where('T.status', 'final')
-                  ->where('T.business_id', $product->business_id)
-                  ->where('transaction_sell_lines.product_id', $product->id)
-                  ->where('transaction_sell_lines.variation_id', $removed_variation_id)
-                  ->count();
+            )
+            ->where('T.type', 'sell')
+            ->where('T.status', 'final')
+            ->where('T.business_id', $product->business_id)
+            ->where('transaction_sell_lines.product_id', $product->id)
+            ->where('transaction_sell_lines.variation_id', $removed_variation_id)
+            ->count();
 
-            $is_variation_delatable = $count_purchase > 0 || $count_sell > 0 ? false : true;
+            $is_variation_deletable = $count_purchase === 0 && $count_sell === 0;
 
-            //if purchase sell dont exists delete the variation
-            if ($is_variation_delatable) {
-                Variation::where('id', $removed_variation_id)
-                    ->delete();
+            if ($is_variation_deletable) {
+                Variation::where('id', $removed_variation_id)->delete();
             } else {
                 throw new \Exception(__('lang_v1.purchase_already_exist'));
             }
@@ -503,7 +527,7 @@ class ProductUtil extends Util
             'p.name as product_actual_name',
             'p.warranty_id',
             'p.image as product_image',
-            'p.product_custom_field1',
+            'p.product_keywords',
             'p.product_custom_field2',
             'p.product_custom_field3',
             'p.product_custom_field4',
@@ -1666,8 +1690,8 @@ class ProductUtil extends Util
                         $query->orWhere('pl.lot_number', 'like', '%'.$search_term.'%');
                     }
 
-                    if (in_array('product_custom_field1', $search_fields)) {
-                        $query->orWhere('product_custom_field1', 'like', '%'.$search_term.'%');
+                    if (in_array('product_keywords', $search_fields)) {
+                        $query->orWhere('product_keywords', 'like', '%'.$search_term.'%');
                     }
                     if (in_array('product_custom_field2', $search_fields)) {
                         $query->orWhere('product_custom_field2', 'like', '%'.$search_term.'%');
@@ -1854,7 +1878,7 @@ class ProductUtil extends Util
             'l.id as location_id',
             'variations.id as variation_id',
             'c.name as category_name',
-            'p.product_custom_field1',
+            'p.product_keywords',
             'p.product_custom_field2',
             'p.product_custom_field3',
             'p.product_custom_field4'

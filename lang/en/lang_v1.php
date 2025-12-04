@@ -1566,4 +1566,6 @@ return [
     'zatca_phase1' => 'Phase 1 - Generation',
     'zatca_phase2' => 'Phase 2 - Integration',
     'phase2_message' => 'For Phase-2, make sure you\'ve successfully completed Zatca onboarding.',
+    'product_keywords' => 'Product Keywords',
+    'product_keywords_help' => 'Comma separated list of keywords to help users search for products.',
 ];

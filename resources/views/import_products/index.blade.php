@@ -276,6 +276,12 @@
                         <td>@lang('lang_v1.product_locations_ins')
                         </td>
                     </tr>
+                    <tr>
+                        <td>38</td>
+                        <td>@lang('lang_v1.product_keywords') <small class="text-muted">(@lang('lang_v1.optional'))</small></td>
+                        <td>@lang('lang_v1.product_keywords_help')
+                        </td>
+                    </tr>
 
                 </table>
             @endcomponent

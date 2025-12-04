@@ -35,6 +35,7 @@ return [
     'exclusive' => 'Exclusive',
     'edit_product' => 'Edit Product',
     'default_purchase_price' => 'Default Purchase Price',
+    'product_keywords' => 'Product Keywords',
     'default_selling_price' => 'Default Selling Price',
     'value' => 'Value',
     'variation_name' => 'Variation Name',

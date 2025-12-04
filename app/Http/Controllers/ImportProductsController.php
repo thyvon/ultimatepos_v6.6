@@ -122,7 +122,7 @@ class ImportProductsController extends Controller
                 foreach ($imported_data as $key => $value) {
 
                     //Check if any column is missing
-                    if (count($value) < 37) {
+                    if (count($value) < 38) {
                         $is_valid = false;
                         $error_msg = 'Some of the columns are missing. Please, use latest CSV file template.';
                         break;
@@ -544,6 +544,7 @@ class ImportProductsController extends Controller
                                 $variation_value = VariationValueTemplate::create([
                                     'name' => $v,
                                     'variation_template_id' => $variation->id,
+                                    'product_keywords' => trim($value[37]) ?? '',
                                 ]);
                             }
 
@@ -557,6 +558,7 @@ class ImportProductsController extends Controller
                                 'default_sell_price' => $variation_prices['dsp_exc_tax'],
                                 'sell_price_inc_tax' => $variation_prices['dsp_inc_tax'],
                                 'sub_sku' => ! empty($variation_skus[$k]) ? $variation_skus[$k] : '',
+                                'product_keywords' => trim($value[37]) ?? '',
                             ];
                         }
 
