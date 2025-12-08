@@ -1878,7 +1878,7 @@ class ProductUtil extends Util
             'l.id as location_id',
             'variations.id as variation_id',
             'c.name as category_name',
-            'p.product_keywords',
+            'p.product_custom_field1',
             'p.product_custom_field2',
             'p.product_custom_field3',
             'p.product_custom_field4'

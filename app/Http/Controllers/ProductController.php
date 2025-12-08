@@ -293,10 +293,13 @@ class ProductController extends Controller
                     '<div style="white-space: nowrap;">@format_currency($min_price) @if($max_price != $min_price && $type == "variable") -  @format_currency($max_price)@endif </div>'
                 )
                 ->filterColumn('products.sku', function ($query, $keyword) {
-                    $query->whereHas('variations', function ($q) use ($keyword) {
-                        $q->where('sub_sku', 'like', "%{$keyword}%");
-                    })
-                    ->orWhere('products.sku', 'like', "%{$keyword}%");
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('products.sku', 'like', "%{$keyword}%")
+                        ->orWhereHas('variations', function ($v) use ($keyword) {
+                            $v->where('sub_sku', 'like', "%{$keyword}%")
+                                ->orWhere('product_keywords', 'like', "%{$keyword}%"); // ✅ ADD HERE
+                        });
+                    });
                 })
                 ->setRowAttr([
                     'data-href' => function ($row) {
