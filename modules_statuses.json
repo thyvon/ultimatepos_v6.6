@@ -1,6 +1,7 @@
 {
     "Essentials": true,
     "Accounting": true,
+    "Installment": true,
     "AssetManagement": true,
     "Cms": true,
     "Connector": true,

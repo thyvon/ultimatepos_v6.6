@@ -527,7 +527,7 @@ class ProductUtil extends Util
             'p.name as product_actual_name',
             'p.warranty_id',
             'p.image as product_image',
-            'p.product_keywords',
+            'p.product_custom_field1',
             'p.product_custom_field2',
             'p.product_custom_field3',
             'p.product_custom_field4',
