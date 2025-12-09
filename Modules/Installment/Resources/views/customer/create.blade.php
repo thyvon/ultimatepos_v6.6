@@ -247,7 +247,8 @@
             var benefit_type=$('#benefit_type').val();
 
             var benefit_peryear=benefit/1;
-            var benefit_permonth=benefit/12;
+            // var benefit_permonth=benefit/12;
+            var benefit_permonth=benefit/1;
             var benefit_perday=benefit/365;
 
 
@@ -256,7 +257,6 @@
                 total_benefit=period*benefit_peryear*number/100;
             if(type=='month')
                 total_benefit=period*benefit_permonth*number/100;
-
             if(type=='day')
                 total_benefit=period*benefit_perday*number/100;
 

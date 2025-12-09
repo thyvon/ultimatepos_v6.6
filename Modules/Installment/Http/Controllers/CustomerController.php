@@ -54,7 +54,8 @@ class CustomerController extends Controller
         $contact_id = request()->input('contact_id');
     }
 
-    public function createinstallment(Request $request){
+    public function createinstallment(Request $request)
+    {
         if (!auth()->user()->can('installment.view')) {
             $output = [ 'success' => false,
 

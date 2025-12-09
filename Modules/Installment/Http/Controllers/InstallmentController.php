@@ -287,12 +287,11 @@ public function installments_for_home(Request $request){
         return view('installment::customer.payment',['data'=>$data,'daylats'=>$daylats,'latfines_value'=>$latfines_value,'accounts'=>$accounts,'contact'=>$contact]);
     }
 
-    public function storepayment(Request $request){
-
-
+public function storepayment(Request $request)
+{
         $business_id=auth()->user()->business_id;
 
-try{
+    try{
     DB::beginTransaction();
         // get transaction_id
        $transaction_id=Installments::select('transaction_id','installment_value','installment_id','benefit_value')->where('id',$request->installment_id)->first();
@@ -342,7 +341,7 @@ try{
             ];
     }
         return $result;
-    }
+}
     public function installmentdelete(Request $request){
 
         if (!auth()->user()->can('installment.delete')) {
