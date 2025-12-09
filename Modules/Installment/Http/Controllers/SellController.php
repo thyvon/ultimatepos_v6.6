@@ -242,62 +242,84 @@ class SellController extends Controller
             }
 
             $datatable = Datatables::of($sells)
-                ->addColumn('action', function ($row) use ($only_shipments, $is_admin) {
-                    $html = '<div class="btn-group">
-                                <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
-                                    data-toggle="dropdown" aria-expanded="false">' .
-                                __("messages.actions") .
-                                '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-left" role="menu">';
+                ->addColumn(
+                    'action',
+                    function ($row) use ($only_shipments, $is_admin) {
+                        $html = '<div class="btn-group">
+                                    <button type="button" class="btn btn-info dropdown-toggle btn-xs" 
+                                        data-toggle="dropdown" aria-expanded="false">' .
+                            __("messages.actions") .
+                            '<span class="caret"></span><span class="sr-only">Toggle Dropdown
+                                        </span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-left" role="menu">' ;
 
-                    // Installment
-                    if ($row->payment_status != "paid" && auth()->user()->can("installment.create") && $row->payment_status != "installmented") {
-                        $html .= '<li><a href="' . route('installment.customer.createinstallment2', [$row->id, $row->final_total, $row->total_paid]) . '" class="add_installment_modal"><i class="fas fa-money-bill-alt"></i> ' . __("installment::lang.sell_installment") . '</a></li>';
-                    }
+                        if ($row->payment_status != "paid" && auth()->user()->can("installment.create") && $row->payment_status != "installmented" ) {
+                            $html .= '<li><a href="' . action('\Modules\Installment\Http\Controllers\CustomerController@createinstallment2', [$row->id,$row->final_total,$row->total_paid]) . '" class="add_installment_modal"><i class="fas fa-money-bill-alt"></i> ' . __("installment::lang.sell_installment") . '</a></li>';
+                        }
 
-                    // View sell
-                    if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access") || auth()->user()->can("view_own_sell_only")) {
-                        $html .= '<li><a href="#" data-href="' . route('installment.sells.show', [$row->id]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
-                    }
 
-                    // Edit
-                    if (!$only_shipments) {
-                        if ($row->is_direct_sale == 0) {
-                            if (auth()->user()->can("sell.update")) {
-                                $html .= '<li><a target="_blank" href="' . route('installment.sellpos.edit', [$row->id]) . '"><i class="fas fa-edit"></i> ' . __("messages.edit") . '</a></li>';
+                        if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access") || auth()->user()->can("view_own_sell_only")) {
+                            $html .= '<li><a href="#" data-href="' . action(\App\Http\Controllers\SellController::class . '@show', [$row->id]). '" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i> ' . __("messages.view") . '</a></li>';
+                        }
+
+                        if (!$only_shipments) {
+                            if ($row->is_direct_sale == 0) {
+                                if (auth()->user()->can("sell.update")) {
+                                    $html .= '<li><a target="_blank" href="' . action('SellPosController@edit', [$row->id]) . '"><i class="fas fa-edit"></i> ' . __("messages.edit") . '</a></li>';
+                                }
+                            } else {
+                                if (auth()->user()->can("direct_sell.access")) {
+                                    $html .= '<li><a target="_blank" href="' . action(\App\Http\Controllers\SellController::class . '@edit', [$row->id]) . '"><i class="fas fa-edit"></i> ' . __("messages.edit") . '</a></li>';
+                                }
                             }
+
+                            if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
+                                $html .= '<li><a href="' . action(\App\Http\Controllers\SellPosController::class . '@destroy', [$row->id]) . '" class="delete-sale"><i class="fas fa-trash"></i> ' . __("messages.delete") . '</a></li>';
+                            }
+                        }
+                        if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {
+                            if (!empty($row->document)) {
+                                $document_name = !empty(explode("_", $row->document, 2)[1]) ? explode("_", $row->document, 2)[1] : $row->document ;
+                                $html .= '<li><a href="' . url('uploads/documents/' . $row->document) .'" download="' . $document_name . '"><i class="fas fa-download" aria-hidden="true"></i>' . __("purchase.download_document") . '</a></li>';
+                                if (isFileImage($document_name)) {
+                                    $html .= '<li><a href="#" data-href="' . url('uploads/documents/' . $row->document) .'" class="view_uploaded_document"><i class="fas fa-image" aria-hidden="true"></i>' . __("lang_v1.view_document") . '</a></li>';
+                                }
+                            }
+                        }
+
+                        if (auth()->user()->can("print_invoice")) {
+                            $html .= '<li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '"><i class="fas fa-print" aria-hidden="true"></i> ' . __("lang_v1.print_invoice") . '</a></li>
+                                <li><a href="#" class="print-invoice" data-href="' . route('sell.printInvoice', [$row->id]) . '?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> ' . __("lang_v1.packing_slip") . '</a></li>';
+                        }
+                        if ($is_admin || auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping']) ) {
+                            $html .= '<li><a href="#" data-href="' . action(\App\Http\Controllers\SellController::class . '@editShipping', [$row->id]) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-truck" aria-hidden="true"></i>' . __("lang_v1.edit_shipping") . '</a></li>';
+                        }
+                        $html .= '<li class="divider"></li>';
+
+                        if (!$only_shipments) {
+
+
+                            $html .= '<li><a href="' . action(\App\Http\Controllers\TransactionPaymentController::class . '@show', [$row->id]) . '" class="view_payment_modal"><i class="fas fa-money-bill-alt"></i> ' . __("purchase.view_payments") . '</a></li>';
+
+                            if (auth()->user()->can("sell.create")) {
+                                $html .= '<li><a href="' . action(\App\Http\Controllers\SellController::class . '@duplicateSell', [$row->id]) . '"><i class="fas fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>
+
+                                <li><a href="' . action(\App\Http\Controllers\SellReturnController::class . '@add', [$row->id]) . '"><i class="fas fa-undo"></i> ' . __("lang_v1.sell_return") . '</a></li>
+
+                                <li><a href="' . action(\App\Http\Controllers\SellPosController::class . '@showInvoiceUrl', [$row->id]) . '" class="view_invoice_url"><i class="fas fa-eye"></i> ' . __("lang_v1.view_invoice_url") . '</a></li>';
+                            }
+
+                            $html .= '<li><a href="#" data-href="' . action(\App\Http\Controllers\NotificationController::class . '@getTemplate', ["transaction_id" => $row->id,"template_for" => "new_sale"]) . '" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>' . __("lang_v1.new_sale_notification") . '</a></li>';
                         } else {
-                            if (auth()->user()->can("direct_sell.access")) {
-                                $html .= '<li><a target="_blank" href="' . route('installment.sells.edit', [$row->id]) . '"><i class="fas fa-edit"></i> ' . __("messages.edit") . '</a></li>';
-                            }
+                            $html .= '<li><a href="#" data-href="' . action(\App\Http\Controllers\SellController::class . '@viewMedia', ["model_id" => $row->id, "model_type" => "App\Transaction", 'model_media_type' => 'shipping_document']) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-paperclip" aria-hidden="true"></i>' . __("lang_v1.shipping_documents") . '</a></li>';
                         }
 
-                        // Delete
-                        if (auth()->user()->can("direct_sell.delete") || auth()->user()->can("sell.delete")) {
-                            $html .= '<li><a href="' . route('installment.sellpos.destroy', [$row->id]) . '" class="delete-sale"><i class="fas fa-trash"></i> ' . __("messages.delete") . '</a></li>';
-                        }
+                        $html .= '</ul></div>';
+
+                        return $html;
                     }
-
-                    // Payments
-                    if (auth()->user()->can("sell.view") || auth()->user()->can("direct_sell.access")) {
-                        $html .= '<li><a href="' . route('installment.transactionpayment.show', [$row->id]) . '" class="view_payment_modal"><i class="fas fa-money-bill-alt"></i> ' . __("purchase.view_payments") . '</a></li>';
-                    }
-
-                    // Duplicate, Return, Invoice URL
-                    if (auth()->user()->can("sell.create") && !$only_shipments) {
-                        $html .= '<li><a href="' . route('installment.sells.duplicateSell', [$row->id]) . '"><i class="fas fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>
-                                <li><a href="' . route('installment.sellreturn.add', [$row->id]) . '"><i class="fas fa-undo"></i> ' . __("lang_v1.sell_return") . '</a></li>
-                                <li><a href="' . route('installment.sellpos.showInvoiceUrl', [$row->id]) . '" class="view_invoice_url"><i class="fas fa-eye"></i> ' . __("lang_v1.view_invoice_url") . '</a></li>';
-                    }
-
-                    // Notifications
-                    $html .= '<li><a href="#" data-href="' . route('installment.notification.getTemplate', ["transaction_id" => $row->id,"template_for" => "new_sale"]) . '" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>' . __("lang_v1.new_sale_notification") . '</a></li>';
-
-                    $html .= '</ul></div>';
-
-                    return $html;
-                })
+                )
                 ->removeColumn('id')
                 ->editColumn(
                     'final_total',
@@ -350,7 +372,7 @@ class SellController extends Controller
                     $return_due_html = '';
                     if (!empty($row->return_exists)) {
                         $return_due = $row->amount_return - $row->return_paid;
-                        $return_due_html .= '<a href="' . action("TransactionPaymentController@show", [$row->return_transaction_id]) . '" class="view_purchase_return_payment_modal"><span class="sell_return_due" data-orig-value="' . $return_due . '">' . $this->transactionUtil->num_f($return_due, true) . '</span></a>';
+                        $return_due_html .= '<a href="' . action(\App\Http\Controllers\TransactionPaymentController::class . "@show", [$row->return_transaction_id]) . '" class="view_purchase_return_payment_modal"><span class="sell_return_due" data-orig-value="' . $return_due . '">' . $this->transactionUtil->num_f($return_due, true) . '</span></a>';
                     }
 
                     return $return_due_html;
@@ -404,7 +426,7 @@ class SellController extends Controller
                 ->setRowAttr([
                     'data-href' => function ($row) {
                         if (auth()->user()->can("sell.view") || auth()->user()->can("view_own_sell_only")) {
-                            return  route('installment.sells.show', [$row->id]) ;
+                            return  action(\App\Http\Controllers\SellController::class . '@show', [$row->id]) ;
                         } else {
                             return '';
                         }

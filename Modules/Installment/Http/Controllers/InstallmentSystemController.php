@@ -159,24 +159,28 @@ class InstallmentSystemController extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(Request $request, $id)
-    {
-        $data=installmentsystem::where('id','=',$id)->first();
-        $data->name=$request->name;
-        $data->number=$request->number;
-        $data->period=$request->period;
-        $data->type=$request->type;
-        $data->benefit=$request->benefit;
-        $data->benefit_type=$request->benefit_type;
-        $data->description=$request->description;
-        $data->save();
-        $output = [ 'success' => true,
-            'data' => $data,
-            'msg' => __("installment::lang.system_updated_success")
-        ];
+public function update(Request $request, $id)
+{
+    $data = installmentsystem::findOrFail($id);
 
-        return $output;
-    }
+    $data->name          = $request->input('name');
+    $data->number        = $request->input('number');
+    $data->period        = $request->input('period');
+    $data->type          = $request->input('type');
+    $data->benefit       = $request->input('benefit');
+    $data->benefit_type  = $request->input('benefit_type');
+    $data->latfines      = $request->input('latfines');
+    $data->latfinestype  = $request->input('latfinestype');
+    $data->description   = $request->input('description');
+
+    $data->save();
+
+    return response()->json([
+        'success' => true,
+        'data'    => $data,
+        'msg'     => __("installment::lang.system_updated_success")
+    ]);
+}
 
     /**
      * Remove the specified resource from storage.

@@ -1,11 +1,15 @@
 <div class="modal-dialog" role="document">
     <div class="modal-content">
 
-        {!! Form::open(['url' => action('\Modules\Installment\Http\Controllers\InstallmentSystemController@update',['id'=>$data->id]), 'method' => 'put','id'=>'edit_installment_system' ]) !!}
+        {!! Form::open([
+            'url' => action([\Modules\Installment\Http\Controllers\InstallmentSystemController::class, 'update'], ['system' => $data->id]), 
+            'method' => 'put',
+            'id' => 'edit_installment_system'
+        ]) !!}
 
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title"> تعديل بيانات نظام تقسيط</h4>
+            <h4 class="modal-title">Edit Installment System</h4>
         </div>
 
         <div class="modal-body">
