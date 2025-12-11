@@ -1,38 +1,55 @@
+# Node, vendor, IDE, environment files
 /node_modules
-/public/hot
-/public/storage
 /vendor
 /.idea
 /.vagrant
-Homestead.json
-Homestead.yaml
 npm-debug.log
 .env
+Homestead.json
+Homestead.yaml
 
-# Uploaded files (public)
-public/uploads/business_logos
-public/uploads/documents
-public/uploads/img
-public/uploads/media
-public/uploads/invoice_logos
-public/uploads/UltimatePOS
-public/uploads/temp
-
-# Public assets
-/public/css/
-/public/fonts/
-/public/images/
-/public/modules/
+/public/hot
+/public/storage
 /public/mix-manifest.json
-/public/js/skins/
-/public/js/icons/
-/public/docs
 
-# Laravel storage (keep folders, ignore content)
-# Ignore everything in storage...
+# Scribe
+.scribe
+
+# Uploaded files (keep folders only)
+public/uploads/*
+!public/uploads/.gitkeep
+!public/uploads/business_logos/.gitkeep
+!public/uploads/documents/.gitkeep
+!public/uploads/img/.gitkeep
+!public/uploads/media/.gitkeep
+!public/uploads/invoice_logos/.gitkeep
+!public/uploads/UltimatePOS/.gitkeep
+!public/uploads/temp/.gitkeep
+
+# Public asset directories (generated files ignored)
+public/css/*
+!public/css/.gitkeep
+
+public/fonts/*
+!public/fonts/.gitkeep
+
+public/images/*
+!public/images/.gitkeep
+
+public/modules/*
+!public/modules/.gitkeep
+
+public/js/skins/*
+!public/js/skins/.gitkeep
+
+public/js/icons/*
+!public/js/icons/.gitkeep
+
+public/docs/*
+!public/docs/.gitkeep
+
+# Laravel storage – keep folder structure only
 /storage/*
-
-# ...but NOT these required folders
 !/storage/app
 !/storage/app/public
 !/storage/framework
@@ -41,7 +58,7 @@ public/uploads/temp
 !/storage/framework/views
 !/storage/logs
 
-# Keep folder structure (important for deployments)
+# Keep empty structure
 !/storage/app/.gitkeep
 !/storage/app/public/.gitkeep
 !/storage/framework/.gitkeep
@@ -49,6 +66,3 @@ public/uploads/temp
 !/storage/framework/sessions/.gitkeep
 !/storage/framework/views/.gitkeep
 !/storage/logs/.gitkeep
-
-# Scribe (API docs)
-.scribe
