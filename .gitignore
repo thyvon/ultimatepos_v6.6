@@ -8,8 +8,10 @@ npm-debug.log
 Homestead.json
 Homestead.yaml
 
-# Laravel storage – ignore contents, but keep folder structure
+# Laravel storage – ignore all files inside storage
 /storage/*
+
+# Keep required folders for Laravel
 !/storage/app
 !/storage/app/public
 !/storage/framework
@@ -18,7 +20,7 @@ Homestead.yaml
 !/storage/framework/views
 !/storage/logs
 
-# Keep empty structure for storage
+# Keep empty folder placeholders for storage
 !/storage/app/.gitkeep
 !/storage/app/public/.gitkeep
 !/storage/framework/.gitkeep
@@ -26,10 +28,14 @@ Homestead.yaml
 !/storage/framework/sessions/.gitkeep
 !/storage/framework/views/.gitkeep
 !/storage/logs/.gitkeep
+
+# Ignore any key files
 /storage/*.key
 
-# Public folder – track everything inside
+# Public folder – track everything inside (CSS, JS, images, uploads, etc.)
 /public/*
+
+# Optional: keep .gitkeep for public folder root if empty
 !/public/.gitkeep
 
 # API docs
