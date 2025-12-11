@@ -12,43 +12,7 @@ Homestead.yaml
 /public/storage
 /public/mix-manifest.json
 
-# Scribe
-.scribe
-
-# Uploaded files (keep folders only)
-public/uploads/*
-!public/uploads/.gitkeep
-!public/uploads/business_logos/.gitkeep
-!public/uploads/documents/.gitkeep
-!public/uploads/img/.gitkeep
-!public/uploads/media/.gitkeep
-!public/uploads/invoice_logos/.gitkeep
-!public/uploads/UltimatePOS/.gitkeep
-!public/uploads/temp/.gitkeep
-
-# Public asset directories (generated files ignored)
-public/css/*
-!public/css/.gitkeep
-
-public/fonts/*
-!public/fonts/.gitkeep
-
-public/images/*
-!public/images/.gitkeep
-
-public/modules/*
-!public/modules/.gitkeep
-
-public/js/skins/*
-!public/js/skins/.gitkeep
-
-public/js/icons/*
-!public/js/icons/.gitkeep
-
-public/docs/*
-!public/docs/.gitkeep
-
-# Laravel storage – keep folder structure only
+# Laravel storage – ignore contents, but keep folder structure
 /storage/*
 !/storage/app
 !/storage/app/public
@@ -58,7 +22,7 @@ public/docs/*
 !/storage/framework/views
 !/storage/logs
 
-# Keep empty structure
+# Keep empty structure for storage
 !/storage/app/.gitkeep
 !/storage/app/public/.gitkeep
 !/storage/framework/.gitkeep
@@ -66,3 +30,25 @@ public/docs/*
 !/storage/framework/sessions/.gitkeep
 !/storage/framework/views/.gitkeep
 !/storage/logs/.gitkeep
+/storage/*.key
+
+# Uploaded files (public) – keep folders only
+/public/uploads/business_logos
+/public/uploads/documents
+/public/uploads/img
+/public/uploads/media
+/public/uploads/invoice_logos
+/public/uploads/UltimatePOS
+/public/uploads/temp
+
+# Public asset directories (ignore generated files)
+/public/css/
+/public/fonts/
+/public/images/
+/public/modules/
+/public/js/skins/
+/public/js/icons/
+/public/docs
+
+# API docs
+.scribe
