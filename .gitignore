@@ -32,7 +32,7 @@ Homestead.yaml
 !/storage/logs/.gitkeep
 /storage/*.key
 
-# Uploaded files (public) – keep folders only
+# Uploaded files (public) – keep folders and their content
 /public/uploads/business_logos
 /public/uploads/documents
 /public/uploads/img
@@ -41,7 +41,7 @@ Homestead.yaml
 /public/uploads/UltimatePOS
 /public/uploads/temp
 
-# Public asset directories (ignore generated files)
+# Public asset directories – track everything inside
 /public/css/
 /public/fonts/
 /public/images/
